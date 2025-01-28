@@ -12,11 +12,11 @@ export default defineEventHandler(async () => {
     (inputsList as any[]).map(async ({ uid }) => {
       const input = await client.stream.liveInputs.get(uid, { account_id });
       const url = new URL(input?.webRTC?.url || "");
-      const hlsPlaybackUrl = `https://${url.hostname}/${uid}/manifest/video.m3u8`;
+      const hlsUrl = `https://${url.hostname}/${uid}/manifest/video.m3u8`;
       const viewsUrl = `https://${url.hostname}/${uid}/views`;
       return {
         ...input,
-        hlsPlaybackUrl,
+        hlsUrl,
         viewsUrl,
       };
     })
