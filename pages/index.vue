@@ -35,6 +35,15 @@ useVideoWhep(whepRef, whepUrl);
 </script>
 <template>
   <!-- <video
+    ref="whipRef"
+    controls
+    muted
+    autoplay
+    playsinline
+    class="w-1/2"
+  ></video> -->
+
+  <!-- <video
     ref="videoRef"
     autoplay
     playsinline
@@ -56,9 +65,8 @@ useVideoWhep(whepRef, whepUrl);
       PIP
     </button>
   </div>
-  <video ref="videoRef2" controls muted autoplay class="w-1/2"></video>
-  <!-- <video ref="whipRef" controls muted autoplay class="w-1/2"></video>  -->
-  <!-- <video ref="whepRef" controls muted autoplay class="w-1/2"></video> -->
+  <!-- <video ref="videoRef2" controls muted autoplay class="w-1/2"></video> -->
+  <video ref="whepRef" controls muted autoplay playsinline></video>
   <ClientOnly>
     <div class="font-mono">{{ now }}</div>
   </ClientOnly>
