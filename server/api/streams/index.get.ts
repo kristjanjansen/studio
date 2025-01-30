@@ -7,7 +7,7 @@ const account_id = "dc1ee8d72a1fb7da857c46479a8503b8";
 // LiveInput types "status" as enum but actual API
 // response contains more data so we need to extend the type
 
-type LiveInputStatus = {
+type Status = {
   ingestProtocol: string;
   reason: string;
   state: "connected" | "disconnected";
@@ -15,10 +15,10 @@ type LiveInputStatus = {
   statusLastSeen?: string;
 };
 
-export type LiveInputExtended = LiveInput & {
+export type Stream = Omit<LiveInput, "status"> & {
   status: {
-    current: LiveInputStatus;
-    history: LiveInputStatus[];
+    current: Status;
+    history: Status[];
   };
   hlsUrl: string;
   viewsUrl: string;
@@ -39,5 +39,5 @@ export default defineEventHandler(async () => {
     })
   );
 
-  return inputs as LiveInputExtended[];
+  return inputs as Stream[];
 });

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { LiveInputExtended } from "~/server/api/streams/index.get";
+import type { Stream } from "~/server/api/streams/index.get";
 
 const { stream } = defineProps<{
-  stream: LiveInputExtended;
+  stream: Stream;
 }>();
 
 const rmtpVideoRef = ref<HTMLVideoElement | null>(null);
