@@ -1,6 +1,8 @@
 <script setup lang="ts">
-const { data: streams } = await useFetch("/api/streams");
-const text = ref("hi");
+const { data: streams, refresh } = await useAsyncData("steams", () => {
+  return $fetch("/api/streams");
+});
+useIntervalFn(refresh, 3000);
 </script>
 
 <template>

@@ -8,8 +8,10 @@ const { copy } = useClipboard({ source: value });
 </script>
 
 <template>
-  <div class="flex flex-col gap-1">
-    <div>{{ title }}</div>
+  <div class="flex flex-col gap-1 text-neutral-300">
+    <div class="text-sm tracking-wide font-semibold">
+      {{ title }}
+    </div>
     <div class="relative">
       <input
         :value="value"

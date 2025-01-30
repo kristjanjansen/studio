@@ -3,3 +3,9 @@
     <slot />
   </div>
 </template>
+
+<style>
+.debug > * {
+  @apply border border-red-500;
+}
+</style>
