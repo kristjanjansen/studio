@@ -4,14 +4,24 @@ import { LiveInput } from "cloudflare/resources/stream/live-inputs/live-inputs.m
 const apiToken = "NmRarNN_6w4GaCCEm8jlLEv4GisV0TSs_-MMriJL";
 const account_id = "dc1ee8d72a1fb7da857c46479a8503b8";
 
-type LiveInputExtras = {
-  hlsUrl: string;
-  viewsUrl: string;
+// LiveInput types "status" as enum but actual API
+// response contains more data so we need to extend the type
+
+type LiveInputStatus = {
+  ingestProtocol: string;
+  reason: string;
+  state: "connected" | "disconnected";
+  statusEnteredAt: string;
+  statusLastSeen?: string;
 };
 
-export type Stream = {
-  input: LiveInput;
-  extras: LiveInputExtras;
+export type LiveInputExtended = LiveInput & {
+  status: {
+    current: LiveInputStatus;
+    history: LiveInputStatus[];
+  };
+  hlsUrl: string;
+  viewsUrl: string;
 };
 
 export default defineEventHandler(async () => {
@@ -25,9 +35,9 @@ export default defineEventHandler(async () => {
       const url = new URL(input?.webRTC?.url || "");
       const hlsUrl = `https://${url.hostname}/${uid}/manifest/video.m3u8`;
       const viewsUrl = `https://${url.hostname}/${uid}/views`;
-      return { input, extras: { hlsUrl, viewsUrl } };
+      return { ...input, hlsUrl, viewsUrl };
     })
   );
 
-  return inputs as Stream[];
+  return inputs as LiveInputExtended[];
 });

@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import type { Stream } from "~/server/api/streams/index.get";
+import type { LiveInputExtended } from "~/server/api/streams/index.get";
 
 const { stream } = defineProps<{
-  stream: Stream;
+  stream: LiveInputExtended;
 }>();
 
 const rmtpVideoRef = ref<HTMLVideoElement | null>(null);
-useVideoHls(rmtpVideoRef, stream.extras.hlsUrl);
+useVideoHls(rmtpVideoRef, stream.hlsUrl);
 
 type Views = {
   liveViewers: number;
 };
 const { data: views, refresh } = await useAsyncData<Views>(
-  "views" + stream.input.uid,
+  "views" + stream.uid,
   () => {
-    return $fetch(stream.extras.viewsUrl);
+    return $fetch(stream.viewsUrl);
   }
 );
 useIntervalFn(refresh, 3000);
@@ -38,8 +38,8 @@ const ffmpegRestream = `ffmpeg -re -i https://sb.err.ee/live/etv.m3u8 -c:v libx2
         {{ views?.liveViewers }}
         <div
           v-if="
-            stream.input.status?.current.ingestProtocol === 'rtmp' &&
-            stream.input.status?.current.state === 'connected'
+            stream.status.current.ingestProtocol === 'rtmp' &&
+            stream.status.current.state === 'connected'
           "
           class="uppercase bg-red-500 rounded px-2 font-semibold tracking-loose"
         >
@@ -47,8 +47,8 @@ const ffmpegRestream = `ffmpeg -re -i https://sb.err.ee/live/etv.m3u8 -c:v libx2
         </div>
       </div>
       <Copyable title="Service" value="Custom..." :copyable="false" />
-      <Copyable title="Server" :value="stream.input?.rtmps?.url" />
-      <Copyable title="Stream Key" :value="stream.input?.rtmps?.streamKey" />
+      <Copyable title="Server" :value="stream?.rtmps?.url" />
+      <Copyable title="Stream Key" :value="stream?.rtmps?.streamKey" />
       <div />
       <details>
         <summary class="font-semibold">RMTP Streaming in ffmpeg</summary>
@@ -56,25 +56,19 @@ const ffmpegRestream = `ffmpeg -re -i https://sb.err.ee/live/etv.m3u8 -c:v libx2
           <Copyable
             title="Local camera in MacOS"
             :value="
-              ffmpegCamera +
-              stream.input?.rtmps?.url +
-              stream.input?.rtmps?.streamKey
+              ffmpegCamera + stream?.rtmps?.url + stream?.rtmps?.streamKey
             "
           />
           <Copyable
             title="Local timestamp"
             :value="
-              ffmpegTimestamp +
-              stream.input?.rtmps?.url +
-              stream.input?.rtmps?.streamKey
+              ffmpegTimestamp + stream.rtmps?.url + stream?.rtmps?.streamKey
             "
           />
           <Copyable
             title="ETV restream"
             :value="
-              ffmpegRestream +
-              stream.input?.rtmps?.url +
-              stream.input?.rtmps?.streamKey
+              ffmpegRestream + stream.rtmps?.url + stream?.rtmps?.streamKey
             "
           />
         </div>
@@ -91,7 +85,7 @@ const ffmpegRestream = `ffmpeg -re -i https://sb.err.ee/live/etv.m3u8 -c:v libx2
         crossorigin="anonymous"
         class="rounded w-full"
       />
-      <Copyable title="HLS url" :value="stream.extras.hlsUrl" />
+      <Copyable title="HLS url" :value="stream.hlsUrl" />
     </div>
     <div class="flex flex-col gap-4">
       <div class="flex gap-2 justify-between items-start">
@@ -101,8 +95,8 @@ const ffmpegRestream = `ffmpeg -re -i https://sb.err.ee/live/etv.m3u8 -c:v libx2
         </div>
         <div
           v-if="
-            stream.input.status?.current.ingestProtocol === 'webrtc' &&
-            stream.input.status?.current.state === 'connected'
+            stream.status?.current.ingestProtocol === 'webrtc' &&
+            stream.status?.current.state === 'connected'
           "
           class="uppercase bg-blue-500 rounded px-2 font-semibold tracking-loose"
         >
@@ -110,7 +104,7 @@ const ffmpegRestream = `ffmpeg -re -i https://sb.err.ee/live/etv.m3u8 -c:v libx2
         </div>
       </div>
       <Copyable title="Service" value="WHIP" :copyable="false" />
-      <Copyable title="Server" :value="stream.input.webRTC?.url" />
+      <Copyable title="Server" :value="stream.webRTC?.url" />
     </div>
     <div>
       <video
