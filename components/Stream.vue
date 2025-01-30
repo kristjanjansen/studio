@@ -1,15 +1,20 @@
 <script setup lang="ts">
+import type { Stream } from "~/server/api/streams/index.get";
+
 const { stream } = defineProps<{
-  stream: any;
+  stream: Stream;
 }>();
 
 const rmtpVideoRef = ref<HTMLVideoElement | null>(null);
-useVideoHls(rmtpVideoRef, stream.hlsUrl);
+useVideoHls(rmtpVideoRef, stream.extras.hlsUrl);
 
-const { data: views, refresh } = await useAsyncData(
-  "views" + stream.uid,
+type Views = {
+  liveViewers: number;
+};
+const { data: views, refresh } = await useAsyncData<Views>(
+  "views" + stream.input.uid,
   () => {
-    return $fetch(stream.viewsUrl);
+    return $fetch(stream.extras.viewsUrl);
   }
 );
 useIntervalFn(refresh, 3000);
@@ -33,8 +38,8 @@ const ffmpegRestream = `ffmpeg -re -i https://sb.err.ee/live/etv.m3u8 -c:v libx2
         {{ views?.liveViewers }}
         <div
           v-if="
-            stream.status.current?.ingestProtocol === 'rtmp' &&
-            stream.status.current.state === 'connected'
+            stream.input.status?.current.ingestProtocol === 'rtmp' &&
+            stream.input.status?.current.state === 'connected'
           "
           class="uppercase bg-red-500 rounded px-2 font-semibold tracking-loose"
         >
@@ -42,23 +47,35 @@ const ffmpegRestream = `ffmpeg -re -i https://sb.err.ee/live/etv.m3u8 -c:v libx2
         </div>
       </div>
       <Copyable title="Service" value="Custom..." :copyable="false" />
-      <Copyable title="Server" :value="stream.rtmps.url" />
-      <Copyable title="Stream Key" :value="stream.rtmps.streamKey" />
+      <Copyable title="Server" :value="stream.input?.rtmps?.url" />
+      <Copyable title="Stream Key" :value="stream.input?.rtmps?.streamKey" />
       <div />
       <details>
         <summary class="font-semibold">RMTP Streaming in ffmpeg</summary>
         <div class="mt-2 flex flex-col gap-4">
           <Copyable
             title="Local camera in MacOS"
-            :value="ffmpegCamera + stream.rtmps.url + stream.rtmps.streamKey"
+            :value="
+              ffmpegCamera +
+              stream.input?.rtmps?.url +
+              stream.input?.rtmps?.streamKey
+            "
           />
           <Copyable
             title="Local timestamp"
-            :value="ffmpegTimestamp + stream.rtmps.url + stream.rtmps.streamKey"
+            :value="
+              ffmpegTimestamp +
+              stream.input?.rtmps?.url +
+              stream.input?.rtmps?.streamKey
+            "
           />
           <Copyable
             title="ETV restream"
-            :value="ffmpegRestream + stream.rtmps.url + stream.rtmps.streamKey"
+            :value="
+              ffmpegRestream +
+              stream.input?.rtmps?.url +
+              stream.input?.rtmps?.streamKey
+            "
           />
         </div>
       </details>
@@ -74,7 +91,7 @@ const ffmpegRestream = `ffmpeg -re -i https://sb.err.ee/live/etv.m3u8 -c:v libx2
         crossorigin="anonymous"
         class="rounded w-full"
       />
-      <Copyable title="HLS url" :value="stream.hlsUrl" />
+      <Copyable title="HLS url" :value="stream.extras.hlsUrl" />
     </div>
     <div class="flex flex-col gap-4">
       <div class="flex gap-2 justify-between items-start">
@@ -84,8 +101,8 @@ const ffmpegRestream = `ffmpeg -re -i https://sb.err.ee/live/etv.m3u8 -c:v libx2
         </div>
         <div
           v-if="
-            stream.status.current?.ingestProtocol === 'webrtc' &&
-            stream.status.current.state === 'connected'
+            stream.input.status?.current.ingestProtocol === 'webrtc' &&
+            stream.input.status?.current.state === 'connected'
           "
           class="uppercase bg-blue-500 rounded px-2 font-semibold tracking-loose"
         >
@@ -93,7 +110,7 @@ const ffmpegRestream = `ffmpeg -re -i https://sb.err.ee/live/etv.m3u8 -c:v libx2
         </div>
       </div>
       <Copyable title="Service" value="WHIP" :copyable="false" />
-      <Copyable title="Server" :value="stream.webRTC.url" />
+      <Copyable title="Server" :value="stream.input.webRTC?.url" />
     </div>
     <div>
       <video
